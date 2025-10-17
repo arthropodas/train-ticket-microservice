@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      # REMOVED MYSQL_USER and MYSQL_PASSWORD to avoid conflicts
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - train-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD}"]
+      timeout: 20s
+      retries: 10
+
+  auth-service:
+    build: ./auth-service
+    container_name: auth-service
+    environment:
+      - PORT=4000
+      - JWT_SECRET=${JWT_SECRET}
+      - MYSQL_HOST=mysql 
+      - MYSQL_USER=root                    # 👈 Use root user
+      - MYSQL_PASSWORD=${MYSQL_ROOT_PASSWORD} # 👈 Use root password
+      - MYSQL_DB=${MYSQL_DATABASE}
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "4000:4000"
+    networks:
+      - train-network
+
+  train-service:
+    build: ./train-service
+    container_name: train-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - JWT_SECRET=${JWT_SECRET}
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/${MYSQL_DATABASE}?createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_USERNAME=root                    # 👈 Use root user
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD}  # 👈 Use root password
+    depends_on:
+      - mysql
+      - auth-service
+    ports:
+      - "8080:8080"
+    networks:
+      - train-network
+
+volumes:
+  mysql-data:
+
+networks:
+  train-network:
+    driver: bridge
