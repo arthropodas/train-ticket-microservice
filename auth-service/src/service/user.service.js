@@ -38,12 +38,8 @@ export class UserService {
       password: hashedPassword
     });
 
-    // Generate tokens
-    const tokens = this.authService.generateTokenPair(user);
-
     return {
-      user: user.withoutPassword(),
-      tokens
+      user: user.withoutPassword()
     };
   }
 

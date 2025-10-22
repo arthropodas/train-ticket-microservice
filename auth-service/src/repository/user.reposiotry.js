@@ -56,8 +56,8 @@ export class UserRepository {
   }
 
   async update(id, updateData) {
-    const allowedFields = ['name', 'country', 'phone_number', 'address', 'is_verified'];
-    const fieldsToUpdate = Object.keys(updateData).filter(key => allowedFields.includes(key));
+    const allowedFields = new Set(['name', 'country', 'phone_number', 'address']);
+    const fieldsToUpdate = Object.keys(updateData).filter(key => allowedFields.has(key));
     
     if (fieldsToUpdate.length === 0) {
       throw new Error('No valid fields to update');

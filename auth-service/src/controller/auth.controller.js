@@ -121,4 +121,9 @@ export class AuthController {
       });
     }
   };
+
+  verifyMail = async(req,res) => {
+
+  };
+
 }
