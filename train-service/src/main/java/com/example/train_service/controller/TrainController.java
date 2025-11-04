@@ -1,28 +1,36 @@
 package com.example.train_service.controller;
 
+import com.example.train_service.entity.Station;
 import com.example.train_service.entity.Train;
+import com.example.train_service.form.TrainForm;
 import com.example.train_service.repository.TrainRepository;
+import com.example.train_service.service.TrainService;
+import org.apache.coyote.BadRequestException;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/trains")
+@RequestMapping("/train")
 public class TrainController {
 
-    private final TrainRepository trainRepository;
+    private final TrainService trainService;
 
-    public TrainController(TrainRepository trainRepository) {
-        this.trainRepository = trainRepository;
+
+    public TrainController(TrainRepository trainRepository, TrainService trainService) {
+        this.trainService = trainService;
     }
 
     @GetMapping
-    public List<Train> getAllTrains() {
-        return trainRepository.findAll();
+    public ResponseEntity<List<Train>> getAllTrains() {
+        return ResponseEntity.ok(trainService.listTrain());
     }
 
     @PostMapping
-    public Train addTrain(@RequestBody Train train) {
-        return trainRepository.save(train);
+    public ResponseEntity<Train> addTrain(@RequestBody TrainForm trainForm) throws BadRequestException {
+        System.out.println("create tran");
+        return  ResponseEntity.ok(trainService.createTrain(trainForm));
+
     }
 }
