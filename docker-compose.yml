@@ -25,6 +25,7 @@ services:
     environment:
       - PORT=4000
       - JWT_SECRET=${JWT_SECRET}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
       - MYSQL_HOST=mysql 
       - MYSQL_USER=root                    # 👈 Use root user
       - MYSQL_PASSWORD=${MYSQL_ROOT_PASSWORD} # 👈 Use root password
@@ -51,6 +52,7 @@ services:
       - auth-service
     ports:
       - "8080:8080"
+      - "5005:5005"
     networks:
       - train-network
 
